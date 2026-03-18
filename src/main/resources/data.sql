@@ -1,0 +1,66 @@
+INSERT INTO students(student_name, email, phone_number)
+VALUES
+    ('Sok Dara', 'sokdara01@gmail.com', '012345678'),
+    ('Chanthy Sreypov', 'sreypov.chanthy@gmail.com', '098223344'),
+    ('Lim Rithy', 'rithylim@yahoo.com', '097556677'),
+    ('Vannak Chea', 'cheavannak@gmail.com', '088112233'),
+    ('Sreyneang Kim', 'kim.sreyneang@gmail.com', '015778899'),
+    ('Sokha Heng', 'sokha.heng@yahoo.com', '086334455'),
+    ('Dara Chhun', 'chhun.dara@gmail.com', '093221144'),
+    ('Nita Pov', 'pov.nita@gmail.com', '089667788'),
+    ('Visal Oun', 'visal.oun@yahoo.com', '010445566'),
+    ('Sothea Lim', 'lim.sothea@gmail.com', '077889900'),
+    ('Kosal Heng', 'kosalheng@gmail.com', '081234567'),
+    ('Srey Mom', 'sreymom@gmail.com', '092778899'),
+    ('Borey Chan', 'chan.borey@yahoo.com', '095667744'),
+    ('Vicheka Sok', 'vichekasok@gmail.com', '099332211'),
+    ('Davy Phan', 'phan.davy@gmail.com', '096554433');
+
+INSERT INTO instructors (instructor_name, email) VALUES
+                                                     ('John Smith', 'john.smith@example.com'),
+                                                     ('Emily Johnson', 'emily.johnson@example.com'),
+                                                     ('Michael Brown', 'michael.brown@example.com'),
+                                                     ('Sophia Davis', 'sophia.davis@example.com'),
+                                                     ('Daniel Wilson', 'daniel.wilson@example.com');
+INSERT INTO courses (course_name, description, instructor_id) VALUES
+                                                                  ('Introduction to Programming', 'Learn the basics of programming using Java.', 1),
+                                                                  ('Web Development Fundamentals', 'HTML, CSS, and JavaScript for building websites.', 2),
+                                                                  ('Database Systems', 'Learn relational databases and SQL.', 3),
+                                                                  ('Object-Oriented Programming', 'Deep dive into OOP concepts using Java.', 1),
+                                                                  ('Spring Boot Development', 'Build REST APIs with Spring Boot.', 4),
+                                                                  ('Data Structures and Algorithms', 'Learn efficient data structures and algorithms.', 3),
+                                                                  ('Frontend Development with React', 'Modern frontend development using React.', 2),
+                                                                  ('Software Engineering Principles', 'Learn design patterns and clean architecture.', 5);
+
+INSERT INTO student_course (student_id, course_id)
+VALUES
+    (1, 9),
+    (1, 10),
+    (2, 11),
+    (2, 12),
+    (3, 9),
+    (3, 13),
+    (4, 10),
+    (4, 14),
+    (5, 11),
+    (5, 15),
+    (6, 12),
+    (6, 16),
+    (7, 13),
+    (7, 9),
+    (8, 14),
+    (8, 10),
+    (9, 15),
+    (9, 11),
+    (10, 16),
+    (10, 12),
+    (11, 9),
+    (11, 13),
+    (12, 10),
+    (12, 14),
+    (13, 11),
+    (13, 15),
+    (14, 12),
+    (14, 16),
+    (15, 13),
+    (15, 9);
