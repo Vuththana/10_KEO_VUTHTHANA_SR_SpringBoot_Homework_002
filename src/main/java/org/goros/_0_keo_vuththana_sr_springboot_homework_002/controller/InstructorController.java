@@ -31,11 +31,7 @@ public class InstructorController {
     @GetMapping("{instructor-id}")
     public ResponseEntity<ApiResponse<Instructor>> getInstructorById(@PathVariable("instructor-id") Integer instructorId) {
         Instructor instructor = instructorService.getInstructorById(instructorId);
-        if(instructor != null) {
-            ApiResponse<Instructor> response = ResponseUtil.success(HttpStatus.OK, "Instructor fetched successfully", instructor);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        ApiResponse<Instructor> response = ResponseUtil.error(HttpStatus.NOT_FOUND, "No Instructor found with the id: " + instructorId);
+        ApiResponse<Instructor> response = instructor != null ? ResponseUtil.success(HttpStatus.OK, "Instructor fetched successfully", instructor) : ResponseUtil.error(HttpStatus.NOT_FOUND, "No Instructor found with the id: " + instructorId);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
