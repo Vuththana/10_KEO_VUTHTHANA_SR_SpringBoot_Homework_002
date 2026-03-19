@@ -1,7 +1,9 @@
 package org.goros._0_keo_vuththana_sr_springboot_homework_002.service.impl;
 
+import org.goros._0_keo_vuththana_sr_springboot_homework_002.model.entity.Course;
 import org.goros._0_keo_vuththana_sr_springboot_homework_002.model.entity.Student;
 import org.goros._0_keo_vuththana_sr_springboot_homework_002.model.request.StudentRequest;
+import org.goros._0_keo_vuththana_sr_springboot_homework_002.repository.CourseRepository;
 import org.goros._0_keo_vuththana_sr_springboot_homework_002.repository.StudentCourseRepository;
 import org.goros._0_keo_vuththana_sr_springboot_homework_002.repository.StudentRepository;
 import org.goros._0_keo_vuththana_sr_springboot_homework_002.service.StudentService;
@@ -12,10 +14,12 @@ import java.util.List;
 @Service
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
+    private final CourseRepository courseRepository;
     private final StudentCourseRepository studentCourseRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository, StudentCourseRepository studentCourseRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository, CourseRepository courseRepository, StudentCourseRepository studentCourseRepository) {
         this.studentRepository = studentRepository;
+        this.courseRepository = courseRepository;
         this.studentCourseRepository = studentCourseRepository;
     }
 
@@ -34,6 +38,10 @@ public class StudentServiceImpl implements StudentService {
     public Student saveStudent(StudentRequest request) {
         Student student = studentRepository.saveStudent(request);
         for(Long courseId : request.getCourseId()) {
+            Course course = courseRepository.getCourseById(Math.toIntExact(courseId));
+            if(course == null) {
+                return null;
+            }
             studentCourseRepository.insertStudentCourse(student.getStudentId(), courseId);
         }
         return studentRepository.getStudentById(Math.toIntExact(student.getStudentId()));

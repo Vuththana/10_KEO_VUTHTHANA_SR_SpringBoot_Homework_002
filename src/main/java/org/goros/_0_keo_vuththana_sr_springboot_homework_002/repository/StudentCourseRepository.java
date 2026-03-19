@@ -14,7 +14,8 @@ public interface StudentCourseRepository {
             @Result(property = "instructor", column = "instructor_id", many = @Many(select = "org.goros._0_keo_vuththana_sr_springboot_homework_002.repository.InstructorRepository.getInstructorById"))
     })
     @Select("""
-    SELECT * FROM student_course sc INNER JOIN courses c ON sc.course_id = c.course_id WHERE student_id = #{studdentId};
+    SELECT * FROM student_course sc INNER JOIN courses c 
+        ON sc.course_id = c.course_id WHERE student_id = #{studdentId};
     """)
     List<Course> getCoursesByStudentId(Long studentId);
 

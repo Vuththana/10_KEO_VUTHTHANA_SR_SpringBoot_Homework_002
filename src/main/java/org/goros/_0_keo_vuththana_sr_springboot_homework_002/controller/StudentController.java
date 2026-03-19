@@ -38,8 +38,8 @@ public class StudentController {
     @PostMapping
     public ResponseEntity<ApiResponse<Student>> saveStudent(@RequestBody StudentRequest request) {
         Student createdStudent = studentService.saveStudent(request);
-        ApiResponse<Student> response = ResponseUtil.success(HttpStatus.CREATED, "Student created successfully", createdStudent);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        ApiResponse<Student> response = createdStudent != null ? ResponseUtil.success(HttpStatus.CREATED, "Student created successfully", createdStudent) : ResponseUtil.error(HttpStatus.NOT_FOUND, "Course ID not found.");
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @DeleteMapping("{student-id}")
