@@ -38,8 +38,9 @@ public interface StudentRepository {
     """)
     int deleteStudentById(Integer studentId);
 
+    @ResultMap("studentMapper")
     @Update("""
-    UPDATE students SET student_name=#{req.studentName}, email=#{req.email}, phone_number=#{phoneNumber} WHERE student_id = #{studentId};
+    UPDATE students SET student_name=#{req.studentName}, email=#{req.email}, phone_number=#{req.phoneNumber} WHERE student_id = #{studentId};
     """)
     int updateStudentById(Integer studentId, @Param("req") StudentRequest request);
 }

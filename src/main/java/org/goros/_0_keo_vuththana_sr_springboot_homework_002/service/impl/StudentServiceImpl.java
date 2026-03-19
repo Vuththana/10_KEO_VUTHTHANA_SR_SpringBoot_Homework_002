@@ -54,6 +54,19 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public int updateStudentById(Integer studentId, StudentRequest request) {
-        return studentRepository.updateStudentById(studentId, request);
+        Student existingStudent = studentRepository.getStudentById(studentId);
+        if(existingStudent == null) {
+            return 0;
+        }
+
+        int rowsAffected = studentRepository.updateStudentById(studentId, request);
+        studentCourseRepository.deleteStudentCourse(Long.valueOf(studentId));
+        for(Long courseId : request.getCourseId()) {
+            Course course = courseRepository.getCourseById(Math.toIntExact(courseId));
+            if(course != null) {
+                studentCourseRepository.insertStudentCourse(Long.valueOf(studentId),courseId);
+            }
+        }
+        return rowsAffected;
     }
 }
