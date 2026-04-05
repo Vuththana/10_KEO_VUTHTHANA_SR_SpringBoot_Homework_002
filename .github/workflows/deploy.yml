@@ -21,15 +21,26 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      - name: Copy JAR and Dockerfile to VPS
+      # Step 1: Copy ONLY the JAR and strip the 'target/' folder
+      - name: Copy JAR to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "target/*.jar,Dockerfile"
+          source: "target/*.jar"
           target: "/root/app-deploy/"
           strip_components: 1
+
+      # Step 2: Copy ONLY the Dockerfile (No stripping needed)
+      - name: Copy Dockerfile to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "Dockerfile"
+          target: "/root/app-deploy/"
 
       - name: Build Image and Restart Container
         uses: appleboy/ssh-action@v1.0.3
@@ -39,17 +50,19 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/app-deploy/
-            # Ensure target folder doesn't exist to avoid mv errors
-            mv target/*.jar app.jar || true 
             
-            # Build the image locally on Contabo
+            # Since the JAR is now directly in app-deploy, we rename it to app.jar
+            # This ensures your Dockerfile 'COPY app.jar' command works every time
+            mv *.jar app.jar || true 
+            
+            # Build the image using the Dockerfile now present in the folder
             docker build -t my-java-app:latest .
             
-            # Stop and refresh the container
+            # Stop and remove the old container if it exists
             docker stop my-app-container || true
             docker rm my-app-container || true
             
-            # Run with Environment Variables injected from GitHub Secrets
+            # Start the new container
             docker run -d --name my-app-container \
               -p 8080:8080 \
               -e DB_URL="${{ secrets.DB_URL }}" \
