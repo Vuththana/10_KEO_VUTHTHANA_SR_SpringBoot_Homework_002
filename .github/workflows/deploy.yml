@@ -1,0 +1,58 @@
+name: Java 25 Build on Contabo
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: oracle-actions/setup-java@v1
+        with:
+          website: oracle.com
+          release: 25
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Copy JAR and Dockerfile to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "target/*.jar,Dockerfile"
+          target: "/root/app-deploy/"
+          strip_components: 1
+
+      - name: Build Image and Restart Container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/app-deploy/
+            # Ensure target folder doesn't exist to avoid mv errors
+            mv target/*.jar app.jar || true 
+            
+            # Build the image locally on Contabo
+            docker build -t my-java-app:latest .
+            
+            # Stop and refresh the container
+            docker stop my-app-container || true
+            docker rm my-app-container || true
+            
+            # Run with Environment Variables injected from GitHub Secrets
+            docker run -d --name my-app-container \
+              -p 8080:8080 \
+              -e DB_URL="${{ secrets.DB_URL }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              my-java-app:latest

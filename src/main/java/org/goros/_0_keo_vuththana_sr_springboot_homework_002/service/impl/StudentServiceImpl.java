@@ -58,7 +58,6 @@ public class StudentServiceImpl implements StudentService {
         if(existingStudent == null) {
             return 0;
         }
-
         int rowsAffected = studentRepository.updateStudentById(studentId, request);
         studentCourseRepository.deleteStudentCourse(Long.valueOf(studentId));
         for(Long courseId : request.getCourseId()) {
