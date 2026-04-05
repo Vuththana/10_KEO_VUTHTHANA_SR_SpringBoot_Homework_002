@@ -21,7 +21,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # Step 1: Copy ONLY the JAR and strip the 'target/' folder
       - name: Copy JAR to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -33,7 +32,6 @@ jobs:
           strip_components: 1
           debug: true
 
-      # Step 2: Copy ONLY the Dockerfile (No stripping needed)
       - name: Copy Dockerfile to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -52,21 +50,20 @@ jobs:
           script: |
             cd /root/app-deploy/
             
-            # Since the JAR is now directly in app-deploy, we rename it to app.jar
-            # This ensures your Dockerfile 'COPY app.jar' command works every time
+            # Standardize filename
             mv *.jar app.jar || true 
             
-            # Build the image using the Dockerfile now present in the folder
+            # Rebuild image
             docker build -t my-java-app:latest .
             
-            # Stop and remove the old container if it exists
+            # Cleanup old container
             docker stop my-app-container || true
             docker rm my-app-container || true
             
-            # Start the new container
+            # Start new container with SINGLE QUOTES for secrets
             docker run -d --name my-app-container \
               -p 8080:8080 \
-              -e DB_URL="${{ secrets.DB_URL }}" \
-              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
-              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e DB_URL='${{ secrets.DB_URL }}' \
+              -e DB_USERNAME='${{ secrets.DB_USERNAME }}' \
+              -e DB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
               my-java-app:latest
