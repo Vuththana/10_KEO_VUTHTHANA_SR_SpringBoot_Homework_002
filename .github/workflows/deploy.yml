@@ -31,6 +31,7 @@ jobs:
           source: "target/*.jar"
           target: "/root/app-deploy/"
           strip_components: 1
+          debug: true
 
       # Step 2: Copy ONLY the Dockerfile (No stripping needed)
       - name: Copy Dockerfile to VPS
