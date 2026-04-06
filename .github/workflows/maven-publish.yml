@@ -1,46 +1,49 @@
-name: Deploy Spring Boot to Contabo
+name: Deploy Spring Boot to Contabo (Java 21)
 
 on:
   push:
-    branches: [ "main" ]  # This triggers the deploy whenever you push to main
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 25
-      uses: oracle-actions/setup-java@v1
-      with:
-        website: oracle.com
-        release: 25
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto' # Amazon's stable OpenJDK distribution
 
-    - name: Build with Maven
-      run: mvn clean package -DskipTests
+      - name: Build with Maven
+        # 'package' creates the JAR; 'deploy' is for publishing to a repo (not needed here)
+        run: mvn clean package -DskipTests
 
-    - name: Copy JAR to Contabo
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        source: "target/*.jar"
-        target: "/home/root/"
-        strip_components: 1
+      - name: Copy JAR to Contabo
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          # Match only the newly built jar
+          source: "target/*.jar"
+          target: "/home/root/"
+          strip_components: 1
 
-    - name: Restart Service on VPS
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        script: |
-          # Ensure the directory exists
-          mkdir -p /home/root/
-          # Move and rename the new jar
-          mv /home/root/*.jar /home/root/app.jar
-          # Restart your systemd service
-          sudo systemctl restart myapp
+      - name: Restart Service on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            mkdir -p /home/root/
+            # Remove old version to prevent "multiple files" errors
+            rm -f /home/root/app.jar
+            # Move the new jar (finds the long name and renames it)
+            mv /home/root/*.jar /home/root/app.jar
+            # Restart the service
+            sudo systemctl restart myapp
